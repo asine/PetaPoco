@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Data.Common;
-using System.Data;
-using System.Text;
 using System.Reflection;
 
 namespace PetaPoco
 {
-	/* 
+    /* 
 	Thanks to Adam Schroder (@schotime) for this.
 	
 	This extra file provides an implementation of DbProviderFactory for early versions of the Oracle
@@ -40,52 +36,43 @@ namespace PetaPoco
 								type="PetaPoco.OracleProvider, ASSEMBLYNAME" />
 			</DbProviderFactories>
 		</system.data>
-	 
-	
 
 	 */
 
-
-
-
-	public class OracleProvider : DbProviderFactory
-	{
-		private const string _assemblyName = "Oracle.DataAccess";
-		private const string _connectionTypeName = "Oracle.DataAccess.Client.OracleConnection";
-		private const string _commandTypeName = "Oracle.DataAccess.Client.OracleCommand";
-		private static Type _connectionType;
-		private static Type _commandType;
-
-		// Required for DbProviderFactories.GetFactory() to work.
-		public static OracleProvider Instance = new OracleProvider();
-
-		public OracleProvider()
-		{
-			_connectionType = ReflectHelper.TypeFromAssembly(_connectionTypeName, _assemblyName);
-			_commandType = ReflectHelper.TypeFromAssembly(_commandTypeName, _assemblyName);
-			if (_connectionType == null)
-				throw new InvalidOperationException("Can't find Connection type: " + _connectionTypeName);
-		}
-
-		public override DbConnection CreateConnection()
-		{
-            return (DbConnection)Activator.CreateInstance(_connectionType);
-		}
-
-		public override DbCommand CreateCommand()
-		{
-			DbCommand command = (DbCommand)Activator.CreateInstance(_commandType);
-
-			var oracleCommandBindByName = _commandType.GetProperty("BindByName");
-			oracleCommandBindByName.SetValue(command, true, null);
-
-			return command;
-		}
-	}
-	
-	
-	public class ReflectHelper
+    public class OracleProvider : DbProviderFactory
     {
+        private const string _assemblyName = "Oracle.DataAccess";
+        private const string _connectionTypeName = "Oracle.DataAccess.Client.OracleConnection";
+        private const string _commandTypeName = "Oracle.DataAccess.Client.OracleCommand";
+        private static Type _connectionType;
+        private static Type _commandType;
+
+        // Required for DbProviderFactories.GetFactory() to work.
+        public static OracleProvider Instance = new OracleProvider();
+
+        public OracleProvider()
+        {
+            _connectionType = TypeFromAssembly(_connectionTypeName, _assemblyName);
+            _commandType = TypeFromAssembly(_commandTypeName, _assemblyName);
+            if (_connectionType == null)
+                throw new InvalidOperationException("Can't find Connection type: " + _connectionTypeName);
+        }
+
+        public override DbConnection CreateConnection()
+        {
+            return (DbConnection) Activator.CreateInstance(_connectionType);
+        }
+
+        public override DbCommand CreateCommand()
+        {
+            DbCommand command = (DbCommand) Activator.CreateInstance(_commandType);
+
+            var oracleCommandBindByName = _commandType.GetProperty("BindByName");
+            oracleCommandBindByName.SetValue(command, true, null);
+
+            return command;
+        }
+
         public static Type TypeFromAssembly(string typeName, string assemblyName)
         {
             try
@@ -126,7 +113,5 @@ namespace PetaPoco
                 return null;
             }
         }
-
     }
-
 }
